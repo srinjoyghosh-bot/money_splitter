@@ -84,7 +84,7 @@ class _HomeViewState extends State<HomeView> {
                         style: TextStyle(color: Colors.green),
                       ),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        createGroupDialog();
                       },
                     ),
                     const Divider(thickness: 2),
@@ -98,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
                         style: TextStyle(color: Colors.green),
                       ),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        joinGroupDialog();
                       },
                     ),
                   ],
@@ -123,5 +123,59 @@ class _HomeViewState extends State<HomeView> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
+  }
+
+  void createGroupDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const TextField(
+                    decoration: InputDecoration(hintText: 'Enter group name'),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      TextButton(onPressed: () {}, child: const Text('Create')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void joinGroupDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const TextField(
+                    decoration: InputDecoration(hintText: 'Enter group id'),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      TextButton(onPressed: () {}, child: const Text('Join')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
