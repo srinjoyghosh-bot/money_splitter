@@ -66,6 +66,62 @@ class _HomeViewState extends State<HomeView> {
       body: const Center(
         child: Text('Home'),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.add,
+                        color: Colors.green,
+                      ),
+                      title: const Text(
+                        "Create Group",
+                        style: TextStyle(color: Colors.green),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    const Divider(thickness: 2),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.add,
+                        color: Colors.green,
+                      ),
+                      title: const Text(
+                        "Join Group",
+                        style: TextStyle(color: Colors.green),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12))));
+        },
+        tooltip: "Create or join group",
+        backgroundColor: Colors.green,
+        elevation: 12,
+        child: const Icon(Icons.add),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            bottomLeft: Radius.circular(16),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
