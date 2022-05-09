@@ -4,21 +4,25 @@ import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/router.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
 import 'package:money_manager/ui/auth_view.dart';
+import 'package:money_manager/ui/home_view.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/local_storage_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
+  await setupLocator();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+  final LocalStorageService _service = locator<LocalStorageService>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +36,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.green,
         ),
         onGenerateRoute: AppRouter.generateRoute,
-        initialRoute: AuthView.id,
+        initialRoute: _service.isLoggedIn ? HomeView.id : AuthView.id,
       ),
     );
   }

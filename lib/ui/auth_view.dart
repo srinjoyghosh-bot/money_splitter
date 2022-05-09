@@ -16,7 +16,12 @@ class AuthView extends StatefulWidget {
 class _AuthViewState extends State<AuthView> {
   final _signUpFormKey = GlobalKey<FormState>();
   final _loginFormKey = GlobalKey<FormState>();
-  String name = '', email = '', phone = '', password = '';
+  String name = '',
+      email = '',
+      phone = '',
+      password = '',
+      username = '',
+      upiId = '';
   late AuthenticationViewModel _auth;
 
   void _onSaveSignup() async {
@@ -26,7 +31,8 @@ class _AuthViewState extends State<AuthView> {
       return;
     }
     _signUpFormKey.currentState?.save();
-    final status = await _auth.signUp(email, password);
+    final status =
+        await _auth.signUp(email, password, name, username, phone, upiId);
     if (status) {
       showSuccessSnackbar('Account created!');
     } else {
@@ -117,7 +123,7 @@ class _AuthViewState extends State<AuthView> {
                       return null;
                     },
                     onSaved: (value) {
-                      name = value!.trim();
+                      username = value!.trim();
                     },
                   ),
                   const SizedBox(height: 10),
@@ -140,7 +146,7 @@ class _AuthViewState extends State<AuthView> {
                       return null;
                     },
                     onSaved: (value) {
-                      name = value!.trim();
+                      upiId = value!.trim();
                     },
                   ),
                   const SizedBox(height: 10),
@@ -157,7 +163,7 @@ class _AuthViewState extends State<AuthView> {
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
-                          int.tryParse(value.trim()) != null ||
+                          // int.tryParse(value.trim()) != null ||
                           value.trim().length != 10) {
                         return 'Please enter a valid phone number';
                       }

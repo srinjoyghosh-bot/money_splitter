@@ -17,4 +17,17 @@ class User {
     required this.phone,
     required this.upiId,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': uid,
+      'name': name,
+      'username': username,
+      'email': email,
+      'password': password,
+      'phone': phone,
+      'upi': upiId,
+      'groups': List.from(groupIds.map((e) => {'id': e})),
+    };
+  }
 }
