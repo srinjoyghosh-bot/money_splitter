@@ -6,7 +6,7 @@ class User {
   final String password;
   final String phone;
   final String upiId;
-  List<String> groupIds = [];
+  List<String>? groupIds;
 
   User({
     required this.uid,
@@ -16,6 +16,7 @@ class User {
     required this.password,
     required this.phone,
     required this.upiId,
+    this.groupIds,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,7 +28,23 @@ class User {
       'password': password,
       'phone': phone,
       'upi': upiId,
-      'groups': List.from(groupIds.map((e) => {'id': e})),
+      'groups':
+          groupIds != null ? List.from(groupIds!.map((e) => {'id': e})) : null,
     };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      uid: json['id'],
+      name: json['name'],
+      username: json['username'],
+      email: json['email'],
+      password: json['password'],
+      phone: json['phone'],
+      upiId: json['upi'],
+      groupIds: json['groups'] != null
+          ? List.from(json['groups'].map((e) => e['id']))
+          : null,
+    );
   }
 }

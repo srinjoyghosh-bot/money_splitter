@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
+import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:money_manager/ui/auth_view.dart';
 import 'package:provider/provider.dart';
 
@@ -12,8 +13,11 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  late GroupViewModel _group;
+
   @override
   Widget build(BuildContext context) {
+    _group = Provider.of<GroupViewModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -84,6 +88,7 @@ class _HomeViewState extends State<HomeView> {
                         style: TextStyle(color: Colors.green),
                       ),
                       onTap: () {
+                        Navigator.of(context).pop();
                         createGroupDialog();
                       },
                     ),
@@ -126,6 +131,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void createGroupDialog() {
+    TextEditingController controller = TextEditingController();
     showDialog(
         context: context,
         builder: (context) {
@@ -135,14 +141,27 @@ class _HomeViewState extends State<HomeView> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const TextField(
-                    decoration: InputDecoration(hintText: 'Enter group name'),
+                  TextField(
+                    decoration:
+                        const InputDecoration(hintText: 'Enter group name'),
+                    controller: controller,
                   ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       const Spacer(),
-                      TextButton(onPressed: () {}, child: const Text('Create')),
+                      TextButton(
+                          onPressed: () async {
+                            bool isCreated = await _group
+                                .createGroup(controller.text.trim());
+                            if (isCreated) {
+                              showSuccessSnackbar('Group created!');
+                            } else {
+                              showErrorSnackbar(_group.errorMessage);
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Create')),
                     ],
                   ),
                 ],
@@ -177,5 +196,21 @@ class _HomeViewState extends State<HomeView> {
             ),
           );
         });
+  }
+
+  void showErrorSnackbar(String error) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(error),
+      duration: const Duration(seconds: 3),
+      backgroundColor: Colors.red,
+    ));
+  }
+
+  void showSuccessSnackbar(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      duration: const Duration(seconds: 3),
+      backgroundColor: Colors.green,
+    ));
   }
 }
