@@ -17,4 +17,14 @@ class GroupViewModel extends BaseViewModel {
     }
     return true;
   }
+
+  Future<bool> joinGroup(String groupId) async {
+    bool exists = await _groupService.ifGroupExist(groupId);
+    if (exists) {
+      _databaseService.addGroupToUser(groupId);
+      _groupService.addUserToGroup(groupId);
+      return true;
+    }
+    return false;
+  }
 }

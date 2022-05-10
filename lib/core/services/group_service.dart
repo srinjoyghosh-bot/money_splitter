@@ -20,4 +20,30 @@ class GroupService {
     reference.doc(groupId).set(group.toJson());
     return groupId;
   }
+
+  Future<bool> ifGroupExist(String groupId) async {
+    try {
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('groups').doc(groupId);
+      final snapshot = await userDoc.get();
+      return snapshot.exists;
+    } on Exception catch (_) {
+      return false;
+    }
+  }
+
+  void addUserToGroup(String groupId) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference groupDoc =
+        FirebaseFirestore.instance.collection('groups').doc(groupId);
+    final snapshot = await groupDoc.get();
+    Map<String, dynamic> groupData = snapshot.data() as Map<String, dynamic>;
+    List<String> newParticipantsList = [];
+    newParticipantsList =
+        List.from(groupData['participants'].map((e) => e['id']));
+    newParticipantsList.add(uid);
+    groupData['participants'] =
+        List.from(newParticipantsList.map((e) => {'id': e}));
+    groupDoc.set(groupData);
+  }
 }

@@ -103,6 +103,7 @@ class _HomeViewState extends State<HomeView> {
                         style: TextStyle(color: Colors.green),
                       ),
                       onTap: () {
+                        Navigator.of(context).pop();
                         joinGroupDialog();
                       },
                     ),
@@ -172,6 +173,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void joinGroupDialog() {
+    TextEditingController controller = TextEditingController();
     showDialog(
         context: context,
         builder: (context) {
@@ -181,14 +183,27 @@ class _HomeViewState extends State<HomeView> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const TextField(
-                    decoration: InputDecoration(hintText: 'Enter group id'),
+                  TextField(
+                    decoration:
+                        const InputDecoration(hintText: 'Enter group id'),
+                    controller: controller,
                   ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       const Spacer(),
-                      TextButton(onPressed: () {}, child: const Text('Join')),
+                      TextButton(
+                          onPressed: () async {
+                            bool isJoined =
+                                await _group.joinGroup(controller.text);
+                            if (isJoined) {
+                              showSuccessSnackbar('Group joined!');
+                            } else {
+                              showErrorSnackbar('No group found');
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Join')),
                     ],
                   ),
                 ],
