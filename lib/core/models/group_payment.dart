@@ -1,10 +1,8 @@
-import 'package:money_manager/core/models/user.dart';
-
 class GroupPayment {
   final double totalAmount;
 
   // final DateTime dateTime;
-  final List<User> participants;
+  final List<String> participants;
 
   GroupPayment({
     required this.totalAmount,
@@ -12,10 +10,17 @@ class GroupPayment {
     required this.participants,
   });
 
+  factory GroupPayment.fromJson(Map<String, dynamic> json) {
+    return GroupPayment(
+      totalAmount: json['amount'],
+      participants: List.from(json['participants'].map((e) => e['id'])),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'amount': totalAmount,
-      'participants': List.from(participants.map((e) => e.toJson())),
+      'participants': List.from(participants.map((e) => {'id': e})),
     };
   }
 }

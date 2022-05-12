@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/core/constants/enum/view_state.dart';
+import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
-import 'package:money_manager/core/view_models/group_viewmodel.dart';
+import 'package:money_manager/core/view_models/home_viewmodel.dart';
 import 'package:money_manager/ui/auth_view.dart';
+import 'package:money_manager/ui/widgets/group_tile.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -13,11 +16,12 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  late GroupViewModel _group;
+  late HomeViewModel _group;
 
   @override
   Widget build(BuildContext context) {
-    _group = Provider.of<GroupViewModel>(context);
+    _group = Provider.of<HomeViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -67,67 +71,95 @@ class _HomeViewState extends State<HomeView> {
           )
         ],
       ),
-      body: const Center(
-        child: Text('Home'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: const Icon(
-                        Icons.add,
-                        color: Colors.green,
-                      ),
-                      title: const Text(
-                        "Create Group",
-                        style: TextStyle(color: Colors.green),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        createGroupDialog();
-                      },
-                    ),
-                    const Divider(thickness: 2),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.add,
-                        color: Colors.green,
-                      ),
-                      title: const Text(
-                        "Join Group",
-                        style: TextStyle(color: Colors.green),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        joinGroupDialog();
-                      },
-                    ),
-                  ],
-                );
-              },
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12))));
+      body: FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              List<Group> _userGroups = snapshot.data as List<Group>;
+              return _group.state == ViewState.idle
+                  ? _userGroups.isNotEmpty
+                      ? ListView.builder(
+                          itemBuilder: (context, index) => GroupTile(
+                                group: _userGroups[index],
+                              ),
+                          itemCount: _userGroups.length)
+                      : const Center(
+                          child: Text('No groups yet'),
+                        )
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    );
+            }
+            return const Center(
+              child: Text('Some error occured!'),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
         },
-        tooltip: "Create or join group",
-        backgroundColor: Colors.green,
-        elevation: 12,
-        child: const Icon(Icons.add),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            bottomRight: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
-          ),
+        future: _group.groups,
+      ),
+      floatingActionButton: _floatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  Widget _floatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {
+        showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(
+                      Icons.add,
+                      color: Colors.green,
+                    ),
+                    title: const Text(
+                      "Create Group",
+                      style: TextStyle(color: Colors.green),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      createGroupDialog();
+                    },
+                  ),
+                  const Divider(thickness: 2),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.add,
+                      color: Colors.green,
+                    ),
+                    title: const Text(
+                      "Join Group",
+                      style: TextStyle(color: Colors.green),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      joinGroupDialog();
+                    },
+                  ),
+                ],
+              );
+            },
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12))));
+      },
+      tooltip: "Create or join group",
+      backgroundColor: Colors.green,
+      elevation: 12,
+      child: const Icon(Icons.add),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+          bottomLeft: Radius.circular(16),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

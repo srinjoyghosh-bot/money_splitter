@@ -46,4 +46,40 @@ class GroupService {
         List.from(newParticipantsList.map((e) => {'id': e}));
     groupDoc.set(groupData);
   }
+
+  Future<List<Group>> getGroups() async {
+    final userData = await getUserData();
+    // List<Group> groups = [];
+
+    if (userData['groups'] != null) {
+      List<String> groupIds = List.from(userData['groups'].map((e) => e['id']));
+      return List.from(await Future.wait(groupIds.map((e) async {
+        return await getGroupFromId(e);
+      })));
+    }
+
+    return [];
+  }
+
+  Future<Group> getGroupFromId(String groupId) async {
+    final groupData = await getGroupData(groupId);
+    return Group.fromJson(groupData);
+  }
+
+  Future<Map<String, dynamic>> getGroupData(String groupId) async {
+    DocumentReference groupDoc =
+        FirebaseFirestore.instance.collection('groups').doc(groupId);
+    final snapshot = await groupDoc.get();
+    Map<String, dynamic> groupData = snapshot.data() as Map<String, dynamic>;
+    return groupData;
+  }
+
+  Future<Map<String, dynamic>> getUserData() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDoc =
+        FirebaseFirestore.instance.collection('users').doc(uid);
+    final snapshot = await userDoc.get();
+    Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+    return userData;
+  }
 }
