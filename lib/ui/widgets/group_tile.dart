@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/ui/group_view.dart';
 
 import '../../core/models/group.dart';
 
@@ -39,6 +40,9 @@ class _GroupTileState extends State<GroupTile> {
               width: 2,
             ),
             borderRadius: BorderRadius.all(Radius.circular(12))),
+        onTap: () {
+          Navigator.pushNamed(context, GroupView.id, arguments: widget.group);
+        },
       ),
     );
   }

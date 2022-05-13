@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/router.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
+import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:money_manager/core/view_models/home_viewmodel.dart';
 import 'package:money_manager/ui/auth_view.dart';
 import 'package:money_manager/ui/home_view.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (ctx) => AuthenticationViewModel()),
         ChangeNotifierProvider(create: (ctx) => HomeViewModel()),
+        ChangeNotifierProvider(create: (ctx) => GroupViewModel()),
       ],
       child: MaterialApp(
         title: 'Money-Manager',

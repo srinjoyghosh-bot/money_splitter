@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_manager/core/models/group.dart';
+import 'package:money_manager/core/models/group_payment.dart';
 
 class GroupService {
   Future<String> createGroup(String name) async {
@@ -48,7 +49,8 @@ class GroupService {
   }
 
   Future<List<Group>> getGroups() async {
-    final userData = await getUserData();
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    final userData = await getUserData(uid);
     // List<Group> groups = [];
 
     if (userData['groups'] != null) {
@@ -74,8 +76,19 @@ class GroupService {
     return groupData;
   }
 
-  Future<Map<String, dynamic>> getUserData() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
+  Future<void> addPaymentToGroup(String groupId, GroupPayment payment) async {
+    Map<String, dynamic> groupData = await getGroupData(groupId);
+    if (groupData['payments'] == null) {
+      groupData['payments'] = [payment.toJson()];
+    } else {
+      groupData['payments'].add(payment.toJson());
+    }
+    DocumentReference groupDoc =
+        FirebaseFirestore.instance.collection('groups').doc(groupId);
+    groupDoc.set(groupData);
+  }
+
+  Future<Map<String, dynamic>> getUserData(String uid) async {
     DocumentReference userDoc =
         FirebaseFirestore.instance.collection('users').doc(uid);
     final snapshot = await userDoc.get();
