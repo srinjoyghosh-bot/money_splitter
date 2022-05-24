@@ -1,22 +1,29 @@
+import 'member.dart';
+
 class GroupPayment {
   final double totalAmount;
   final String title;
 
-  // final DateTime dateTime;
-  final List<String> participants;
+  final List<Member> participants;
+  final Member creator;
 
   GroupPayment({
     required this.totalAmount,
     required this.title,
-    // required this.dateTime,
     required this.participants,
+    required this.creator,
   });
 
   factory GroupPayment.fromJson(Map<String, dynamic> json) {
     return GroupPayment(
-      totalAmount: json['amount'],
+      totalAmount: json['amount'].toDouble(),
       title: json['title'],
-      participants: List.from(json['participants'].map((e) => e['id'])),
+      participants: List<Member>.from(
+        json['participants'].map(
+          (e) => Member.fromJson(e),
+        ),
+      ),
+      creator: Member.fromJson(json['creator']),
     );
   }
 
@@ -24,7 +31,8 @@ class GroupPayment {
     return {
       'amount': totalAmount,
       'title': title,
-      'participants': List.from(participants.map((e) => {'id': e})),
+      'participants': List.from(participants.map((e) => e.toJson())),
+      'creator': creator.toJson(),
     };
   }
 }

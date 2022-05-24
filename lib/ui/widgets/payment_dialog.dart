@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/core/models/member.dart';
 import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:money_manager/ui/widgets/participant_list_item.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,7 @@ class PaymentDialog extends StatefulWidget {
   const PaymentDialog(
       {Key? key, required this.participantIds, required this.groupId})
       : super(key: key);
-  final List<String> participantIds;
+  final List<Member> participantIds;
   final String groupId;
 
   @override
@@ -90,7 +91,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
               Expanded(
                   child: ListView.builder(
                 itemBuilder: (context, index) =>
-                    ParticipantListItem(id: widget.participantIds[index]),
+                    ParticipantListItem(member: widget.participantIds[index]),
                 itemCount: widget.participantIds.length,
               )),
               SizedBox(

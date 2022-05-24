@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/core/models/member.dart';
 import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class ParticipantListItem extends StatefulWidget {
-  const ParticipantListItem({Key? key, required this.id}) : super(key: key);
-  final String id;
+  const ParticipantListItem({Key? key, required this.member}) : super(key: key);
+  final Member member;
 
   @override
   _ParticipantListItemState createState() => _ParticipantListItemState();
@@ -27,10 +28,10 @@ class _ParticipantListItemState extends State<ParticipantListItem> {
           }
           if (value) {
             // selectedParticipants.add(id);
-            _groupViewModel.selectParticipant(widget.id);
+            _groupViewModel.selectParticipant(widget.member.id);
           } else {
             // selectedParticipants.remove(id);
-            _groupViewModel.unselectParticipant(widget.id);
+            _groupViewModel.unselectParticipant(widget.member.id);
           }
           setState(() {
             isSelected = value;
@@ -38,7 +39,7 @@ class _ParticipantListItemState extends State<ParticipantListItem> {
         },
         shape: const RoundedRectangleBorder(
             side: BorderSide(color: Colors.green, width: 2)),
-        title: Text(widget.id),
+        title: Text(widget.member.username),
       ),
     );
   }

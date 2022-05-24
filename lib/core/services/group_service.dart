@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/models/group_payment.dart';
+import 'package:money_manager/core/models/member.dart';
 
 class GroupService {
   Future<String> createGroup(String name) async {
@@ -12,10 +13,10 @@ class GroupService {
         FirebaseFirestore.instance.collection('users').doc(uid);
     final snapshot = await userDoc.get();
     Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-
+    Member member = Member(id: uid, username: userData['username']);
     int num = userData['groups'] != null ? userData['groups'].length + 1 : 1;
     String groupId = uid + num.toString();
-    Group group = Group(id: groupId, name: name, participants: [uid]);
+    Group group = Group(id: groupId, name: name, participants: [member]);
     CollectionReference reference =
         FirebaseFirestore.instance.collection('groups');
     reference.doc(groupId).set(group.toJson());
@@ -35,36 +36,52 @@ class GroupService {
 
   void addUserToGroup(String groupId) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
+    final userData = await getUserData(uid);
     DocumentReference groupDoc =
         FirebaseFirestore.instance.collection('groups').doc(groupId);
     final snapshot = await groupDoc.get();
     Map<String, dynamic> groupData = snapshot.data() as Map<String, dynamic>;
-    List<String> newParticipantsList = [];
+    List<Member> newParticipantsList = [];
     newParticipantsList =
-        List.from(groupData['participants'].map((e) => e['id']));
-    newParticipantsList.add(uid);
+        List.from(groupData['participants'].map((e) => Member.fromJson(e)));
+    newParticipantsList.add(Member(id: uid, username: userData['username']));
     groupData['participants'] =
-        List.from(newParticipantsList.map((e) => {'id': e}));
+        List.from(newParticipantsList.map((e) => e.toJson()));
     groupDoc.set(groupData);
   }
 
-  Future<List<Group>> getGroups() async {
+  // Future<List<Group>> getGroups() async {
+  //   String uid = FirebaseAuth.instance.currentUser!.uid;
+  //   final userData = await getUserData(uid);
+  //
+  //   if (userData['groups'] != null) {
+  //     List<String> groupIds = List.from(userData['groups'].map((e) => e['id']));
+  //
+  //     List<Group> groups =
+  //         List<Group>.from(await Future.wait(groupIds.map(getGroupFromId)));
+  //     return groups;
+  //   }
+  //
+  //   return [];
+  // }
+
+  Future<List<Group>> getUserGroups() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
-    final userData = await getUserData(uid);
-    // List<Group> groups = [];
-
-    if (userData['groups'] != null) {
-      List<String> groupIds = List.from(userData['groups'].map((e) => e['id']));
-      return List.from(await Future.wait(groupIds.map((e) async {
-        return await getGroupFromId(e);
-      })));
-    }
-
-    return [];
+    QuerySnapshot snap =
+        await FirebaseFirestore.instance.collection('groups').get();
+    List<Group> groupData = List.from(snap.docs
+        .map((e) => Group.fromJson((e.data() as Map<String, dynamic>))));
+    // List<Group> userGroups =
+    //     groupData.where((group) => group.participants).toList();
+    List<Group> userGroups = groupData
+        .where((group) => group.participants.any((member) => member.id == uid))
+        .toList();
+    return userGroups;
   }
 
   Future<Group> getGroupFromId(String groupId) async {
     final groupData = await getGroupData(groupId);
+
     return Group.fromJson(groupData);
   }
 
@@ -88,11 +105,25 @@ class GroupService {
     groupDoc.set(groupData);
   }
 
+  Future<List> getPayments(String groupId) async {
+    Map<String, dynamic> data = await getGroupData(groupId);
+    if (data['payments'] != null) {
+      return List<GroupPayment>.from(
+          data['payments'].map((e) => GroupPayment.fromJson(e)));
+    }
+    return [];
+  }
+
   Future<Map<String, dynamic>> getUserData(String uid) async {
     DocumentReference userDoc =
         FirebaseFirestore.instance.collection('users').doc(uid);
     final snapshot = await userDoc.get();
     Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
     return userData;
+  }
+
+  Future<String> getUsername(String id) async {
+    final userData = await getUserData(id);
+    return userData['username'];
   }
 }

@@ -41,8 +41,7 @@ class HomeViewModel extends BaseViewModel {
   }
 
   Future<void> fetchAllGroups() async {
-    List<Group> groups = await _groupService.getGroups();
-    _userGroups = groups;
+    _userGroups = await _groupService.getUserGroups();
   }
 
   Future<Group> getGroup(String id) async {

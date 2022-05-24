@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:money_manager/core/constants/enum/view_state.dart';
-import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
 import 'package:money_manager/core/view_models/home_viewmodel.dart';
 import 'package:money_manager/ui/auth_view.dart';
 import 'package:money_manager/ui/widgets/group_tile.dart';
 import 'package:provider/provider.dart';
+
+import '../core/constants/enum/view_state.dart';
+import '../core/models/group.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -16,11 +17,16 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  late HomeViewModel _group;
+  late HomeViewModel _model;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _group = Provider.of<HomeViewModel>(context);
+    _model = Provider.of<HomeViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -76,7 +82,7 @@ class _HomeViewState extends State<HomeView> {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               List<Group> _userGroups = snapshot.data as List<Group>;
-              return _group.state == ViewState.idle
+              return _model.state == ViewState.idle
                   ? _userGroups.isNotEmpty
                       ? ListView.builder(
                           itemBuilder: (context, index) => GroupTile(
@@ -96,8 +102,30 @@ class _HomeViewState extends State<HomeView> {
           }
           return const Center(child: CircularProgressIndicator());
         },
-        future: _group.groups,
+        future: _model.groups,
       ),
+      // body: FutureBuilder(
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return const Center(
+      //         child: CircularProgressIndicator(),
+      //       );
+      //     } else {
+      //       if (snapshot.error != null) {
+      //         return const Center(
+      //           child: Text('Some error occurred!'),
+      //         );
+      //       }
+      //       return Consumer<HomeViewModel>(
+      //           builder: (context, model, child) => ListView.builder(
+      //                 itemBuilder: (context, index) =>
+      //                     GroupTile(group: model.groups[index]),
+      //                 itemCount: model.groups.length,
+      //               ));
+      //     }
+      //   },
+      //   future: _groupsFuture,
+      // ),
       floatingActionButton: _floatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -185,12 +213,12 @@ class _HomeViewState extends State<HomeView> {
                       const Spacer(),
                       TextButton(
                           onPressed: () async {
-                            bool isCreated = await _group
+                            bool isCreated = await _model
                                 .createGroup(controller.text.trim());
                             if (isCreated) {
                               showSuccessSnackbar('Group created!');
                             } else {
-                              showErrorSnackbar(_group.errorMessage);
+                              showErrorSnackbar(_model.errorMessage);
                             }
                             Navigator.of(context).pop();
                           },
@@ -227,7 +255,7 @@ class _HomeViewState extends State<HomeView> {
                       TextButton(
                           onPressed: () async {
                             bool isJoined =
-                                await _group.joinGroup(controller.text);
+                                await _model.joinGroup(controller.text);
                             if (isJoined) {
                               showSuccessSnackbar('Group joined!');
                             } else {
