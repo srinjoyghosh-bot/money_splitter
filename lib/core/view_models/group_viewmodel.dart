@@ -1,3 +1,4 @@
+import 'package:money_manager/core/constants/enum/view_state.dart';
 import 'package:money_manager/core/models/group_payment.dart';
 import 'package:money_manager/core/services/local_storage_service.dart';
 import 'package:money_manager/core/view_models/base_viewmodel.dart';
@@ -48,6 +49,7 @@ class GroupViewModel extends BaseViewModel {
   }
 
   Future<void> addPayment(String title, double amount, String groupId) async {
+    setState(ViewState.busy);
     List<Member> members = [];
     for (int i = 0; i < selected.length; i++) {
       String username = await _groupService.getUsername(selected[i]);
@@ -65,6 +67,7 @@ class GroupViewModel extends BaseViewModel {
     await _groupService.addPaymentToGroup(groupId, payment);
     _groupPayments.add(payment);
     notifyListeners();
+    setState(ViewState.idle);
   }
 
   Future<void> _fetchPayments(String groupId) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:money_manager/core/constants/enum/view_state.dart';
 import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/models/group_payment.dart';
@@ -118,6 +119,9 @@ class _GroupViewState extends State<GroupView>
   }
 
   Widget _buildHistoryBody(GroupViewModel model, String groupId) {
+    if (model.state == ViewState.busy) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return FutureBuilder(
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -142,9 +146,11 @@ class _GroupViewState extends State<GroupView>
   }
 
   Widget _buildOweBody(GroupViewModel model) {
+    if (model.state == ViewState.busy) {
+      return const Center(child: CircularProgressIndicator());
+    }
     Map<String, double> summary = model.paymentSummary;
     final oweEntries = summary.entries.where((entry) => entry.value > 0);
-    print(summary);
     if (oweEntries.isNotEmpty) {
       return ListView(
         children: List<Widget>.from(oweEntries.map((e) => _paymentSummaryItem(
@@ -157,6 +163,9 @@ class _GroupViewState extends State<GroupView>
   }
 
   Widget _buildLentBody(GroupViewModel model) {
+    if (model.state == ViewState.busy) {
+      return const Center(child: CircularProgressIndicator());
+    }
     Map<String, double> summary = model.paymentSummary;
     final lentEntries = summary.entries.where((entry) => entry.value < 0);
     if (lentEntries.isNotEmpty) {

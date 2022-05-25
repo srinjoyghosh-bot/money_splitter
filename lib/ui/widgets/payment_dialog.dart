@@ -27,6 +27,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
     if (!isValid!) {
       return;
     }
+
     _paymentFormKey.currentState?.save();
     await Provider.of<GroupViewModel>(context, listen: false)
         .addPayment(title, amount, widget.groupId);
@@ -110,26 +111,4 @@ class _PaymentDialogState extends State<PaymentDialog> {
       ]),
     );
   }
-
-// Widget _participantListItem(String id) {
-//   return Padding(
-//     padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-//     child: CheckboxListTile(
-//       value: false,
-//       onChanged: (value) {
-//         if (value == null) {
-//           return;
-//         }
-//         if (value) {
-//           selectedParticipants.add(id);
-//         } else {
-//           selectedParticipants.remove(id);
-//         }
-//       },
-//       shape: const RoundedRectangleBorder(
-//           side: BorderSide(color: Colors.green, width: 2)),
-//       title: Text(id),
-//     ),
-//   );
-// }
 }
