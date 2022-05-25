@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/models/member.dart';
+import 'package:money_manager/core/services/local_storage_service.dart';
 import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -12,8 +14,18 @@ class ParticipantListItem extends StatefulWidget {
 }
 
 class _ParticipantListItemState extends State<ParticipantListItem> {
-  bool isSelected = false;
+  late bool isSelected;
+
   late GroupViewModel _groupViewModel;
+  final LocalStorageService _service = locator<LocalStorageService>();
+
+  @override
+  void initState() {
+    isSelected = widget.member.id == _service.currentUserId;
+    Provider.of<GroupViewModel>(context, listen: false)
+        .selectParticipant(_service.currentUserId);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +39,8 @@ class _ParticipantListItemState extends State<ParticipantListItem> {
             return;
           }
           if (value) {
-            // selectedParticipants.add(id);
             _groupViewModel.selectParticipant(widget.member.id);
           } else {
-            // selectedParticipants.remove(id);
             _groupViewModel.unselectParticipant(widget.member.id);
           }
           setState(() {

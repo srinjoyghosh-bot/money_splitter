@@ -17,7 +17,8 @@ class GroupView extends StatefulWidget {
   _GroupViewState createState() => _GroupViewState();
 }
 
-class _GroupViewState extends State<GroupView> {
+class _GroupViewState extends State<GroupView>
+    with SingleTickerProviderStateMixin {
   final LocalStorageService _service = locator<LocalStorageService>();
 
   final List<Tab> myTabs = <Tab>[
@@ -26,6 +27,7 @@ class _GroupViewState extends State<GroupView> {
     const Tab(text: 'Lent'),
   ];
   late GroupViewModel _model;
+  late TabController _controller;
 
   void _showDialog(List<Member> members, String id) {
     showDialog(
@@ -38,9 +40,30 @@ class _GroupViewState extends State<GroupView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    Provider.of<GroupViewModel>(context, listen: false).reset();
+    _controller = TabController(length: 3, vsync: this);
+    _controller.addListener(() {
+      if (_controller.index != 0) {
+        Provider.of<GroupViewModel>(context, listen: false)
+            .calculatePaymentSummary();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  } // @override
+
+  @override
   Widget build(BuildContext context) {
     Group _group = widget.group;
     _model = Provider.of<GroupViewModel>(context);
+
     return DefaultTabController(
         length: 3,
         child: Scaffold(
@@ -48,14 +71,16 @@ class _GroupViewState extends State<GroupView> {
             title: Text(_group.name),
             centerTitle: true,
             bottom: TabBar(
+              controller: _controller,
               tabs: myTabs,
             ),
           ),
           body: TabBarView(
+            controller: _controller,
             children: [
               _buildHistoryBody(_model, _group.id),
-              _buildOweBody(),
-              _buildLentBody(),
+              _buildOweBody(_model),
+              _buildLentBody(_model),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -87,24 +112,39 @@ class _GroupViewState extends State<GroupView> {
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        return const Center(
-          child: Text('No payments yet'),
-        );
+        return const Center(child: Text('No payments yet'));
       },
       future: model.getPayments(groupId),
     );
   }
 
-  Widget _buildOweBody() {
-    return const Center(
-      child: Text('Owe'),
-    );
+  Widget _buildOweBody(GroupViewModel model) {
+    Map<String, double> summary = model.paymentSummary;
+    final oweEntries = summary.entries.where((entry) => entry.value > 0);
+    print(summary);
+    if (oweEntries.isNotEmpty) {
+      return ListView(
+        children: List<Widget>.from(oweEntries.map((e) => _paymentSummaryItem(
+              e.key,
+              e.value,
+            ))),
+      );
+    }
+    return const Center(child: Text('You don\'t owe anyone'));
   }
 
-  Widget _buildLentBody() {
-    return const Center(
-      child: Text('Lent'),
-    );
+  Widget _buildLentBody(GroupViewModel model) {
+    Map<String, double> summary = model.paymentSummary;
+    final lentEntries = summary.entries.where((entry) => entry.value < 0);
+    if (lentEntries.isNotEmpty) {
+      return ListView(
+        children: List<Widget>.from(lentEntries.map((e) => _paymentSummaryItem(
+              e.key,
+              -e.value,
+            ))),
+      );
+    }
+    return const Center(child: Text('You did not lend anyone'));
   }
 
   Widget _paymentListItem(GroupPayment payment) {
@@ -130,7 +170,7 @@ class _GroupViewState extends State<GroupView> {
           child: FittedBox(
             fit: BoxFit.contain,
             child: Text(
-              'Rs \n ${payment.totalAmount / (payment.participants.length)}',
+              'Rs \n ${(payment.totalAmount / (payment.participants.length)).toStringAsFixed(1)}',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -144,6 +184,27 @@ class _GroupViewState extends State<GroupView> {
         onTap: () {
           _showDetailsDialog(payment, isInvolved, payer);
         },
+      ),
+    );
+  }
+
+  Widget _paymentSummaryItem(String username, double amount) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+        color: Colors.green,
+      ))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text(username),
+          Chip(
+            label: Text('Rs ${amount.toStringAsFixed(1)}'),
+            backgroundColor: Colors.green,
+          )
+        ],
       ),
     );
   }
@@ -177,7 +238,7 @@ class _GroupViewState extends State<GroupView> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Total Amount : ${payment.totalAmount}',
+                'Total Amount : ${payment.totalAmount.toStringAsFixed(1)}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 20),
               ),
@@ -192,7 +253,7 @@ class _GroupViewState extends State<GroupView> {
                 )
               else
                 Text(
-                  'You owe Rs ${payment.totalAmount / payment.participants.length}',
+                  'You owe Rs ${(payment.totalAmount / payment.participants.length).toStringAsFixed(1)}',
                   style: const TextStyle(
                     fontSize: 25,
                     color: Colors.red,

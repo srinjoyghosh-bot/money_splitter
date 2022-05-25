@@ -9,6 +9,7 @@ import '../services/group_service.dart';
 class GroupViewModel extends BaseViewModel {
   final GroupService _groupService = locator<GroupService>();
   final LocalStorageService _storageService = locator<LocalStorageService>();
+
   Map<String, double> paymentSummary = {};
   List<String> _selectedParticipants = [];
   List<GroupPayment> _groupPayments = [];
@@ -17,19 +18,33 @@ class GroupViewModel extends BaseViewModel {
 
   Future<List<GroupPayment>> getPayments(String groupId) async {
     await _fetchPayments(groupId);
+    paymentSummary = {};
     return _groupPayments;
   }
 
+  List<GroupPayment> get payments => _groupPayments;
+
+  Map<String, double> get summary => paymentSummary;
+
   void selectParticipant(String id) {
-    _selectedParticipants.add(id);
+    if (!_selectedParticipants.contains(id)) {
+      _selectedParticipants.add(id);
+    }
   }
 
   void unselectParticipant(String id) {
-    _selectedParticipants.remove(id);
+    if (_selectedParticipants.contains(id)) {
+      _selectedParticipants.remove(id);
+    }
   }
 
   void resetSelectedList() {
     _selectedParticipants = [];
+  }
+
+  void reset() {
+    paymentSummary = {};
+    _groupPayments = [];
   }
 
   Future<void> addPayment(String title, double amount, String groupId) async {
@@ -55,5 +70,43 @@ class GroupViewModel extends BaseViewModel {
   Future<void> _fetchPayments(String groupId) async {
     _groupPayments =
         await _groupService.getPayments(groupId) as List<GroupPayment>;
+  }
+
+  void calculatePaymentSummary() {
+    paymentSummary = {};
+
+    List<GroupPayment> involvedPayments = _groupPayments
+        .where((payment) => payment.participants
+            .any((member) => member.id == _storageService.currentUserId))
+        .toList();
+    for (GroupPayment payment in involvedPayments) {
+      if (payment.creator.id != _storageService.currentUserId) {
+        if (paymentSummary[payment.creator.username] == null) {
+          paymentSummary[payment.creator.username] =
+              payment.totalAmount / payment.participants.length;
+        } else {
+          paymentSummary.update(
+              payment.creator.username,
+              (value) =>
+                  value + (payment.totalAmount / payment.participants.length));
+        }
+      } else {
+        for (Member member in payment.participants) {
+          if (member.id != _storageService.currentUserId) {
+            if (paymentSummary[member.username] == null) {
+              paymentSummary[member.username] =
+                  -(payment.totalAmount / payment.participants.length);
+            } else {
+              paymentSummary.update(
+                  member.username,
+                  (value) =>
+                      value -
+                      (payment.totalAmount / payment.participants.length));
+            }
+          }
+        }
+      }
+    }
+    notifyListeners();
   }
 }
