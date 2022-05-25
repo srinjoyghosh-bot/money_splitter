@@ -221,6 +221,7 @@ class _AuthViewState extends State<AuthView> {
                     onSaved: (value) {
                       password = value!.trim();
                     },
+                    obscureText: true,
                   ),
                 ],
               ),
@@ -302,6 +303,7 @@ class _AuthViewState extends State<AuthView> {
                   onSaved: (value) {
                     password = value!.trim();
                   },
+                  obscureText: true,
                 ),
               ],
             ),
