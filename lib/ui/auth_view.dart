@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/core/constants/enum/view_state.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
+import 'package:money_manager/ui/utils/snackbars.dart';
 import 'package:provider/provider.dart';
 
 import 'home_view.dart';
@@ -34,9 +35,9 @@ class _AuthViewState extends State<AuthView> {
     final status =
         await _auth.signUp(email, password, name, username, phone, upiId);
     if (status) {
-      showSuccessSnackbar('Account created!');
+      showSuccessSnackbar('Account created!', context);
     } else {
-      showErrorSnackbar(_auth.errorMessage);
+      showErrorSnackbar(_auth.errorMessage, context);
     }
   }
 
@@ -49,10 +50,10 @@ class _AuthViewState extends State<AuthView> {
     _loginFormKey.currentState?.save();
     final status = await _auth.login(email, password);
     if (status) {
-      showSuccessSnackbar('Successfully logged in');
+      showSuccessSnackbar('Successfully logged in', context);
       Navigator.pushReplacementNamed(context, HomeView.id);
     } else {
-      showErrorSnackbar(_auth.errorMessage);
+      showErrorSnackbar(_auth.errorMessage, context);
     }
   }
 
@@ -322,21 +323,5 @@ class _AuthViewState extends State<AuthView> {
         ],
       ),
     );
-  }
-
-  void showErrorSnackbar(String error) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.red,
-    ));
-  }
-
-  void showSuccessSnackbar(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.green,
-    ));
   }
 }

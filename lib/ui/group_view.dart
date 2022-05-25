@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/models/group_payment.dart';
 import 'package:money_manager/core/models/member.dart';
 import 'package:money_manager/core/services/local_storage_service.dart';
 import 'package:money_manager/core/view_models/group_viewmodel.dart';
+import 'package:money_manager/ui/utils/snackbars.dart';
 import 'package:money_manager/ui/widgets/payment_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -74,6 +76,27 @@ class _GroupViewState extends State<GroupView>
               controller: _controller,
               tabs: myTabs,
             ),
+            actions: [
+              PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    const PopupMenuItem<int>(
+                      child: Text('Copy ID'),
+                      value: 0,
+                    ),
+                  ];
+                },
+                onSelected: (value) {
+                  if (value == 0) {
+                    Clipboard.setData(ClipboardData(text: _group.id))
+                        .then((value) => showSuccessSnackbar(
+                              'Group ID copied to clipboard!',
+                              context,
+                            ));
+                  }
+                },
+              )
+            ],
           ),
           body: TabBarView(
             controller: _controller,
