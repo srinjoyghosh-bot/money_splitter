@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/models/group_payment.dart';
 import 'package:money_manager/core/models/member.dart';
+import 'package:uuid/uuid.dart';
 
 class GroupService {
   Future<String> createGroup(String name) async {
@@ -14,8 +15,8 @@ class GroupService {
     final snapshot = await userDoc.get();
     Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
     Member member = Member(id: uid, username: userData['username']);
-    int num = userData['groups'] != null ? userData['groups'].length + 1 : 1;
-    String groupId = uid + num.toString();
+
+    String groupId = const Uuid().v1();
     Group group = Group(id: groupId, name: name, participants: [member]);
     CollectionReference reference =
         FirebaseFirestore.instance.collection('groups');
@@ -125,5 +126,22 @@ class GroupService {
   Future<String> getUsername(String id) async {
     final userData = await getUserData(id);
     return userData['username'];
+  }
+
+  Future<void> removeGroupFromUser(String uid, String groupId) async {
+    Map<String, dynamic> data = await getUserData(uid);
+    List<String> groups = List.from(data['groups'].map((e) => e['id']));
+    groups.remove(groupId);
+    data['groups'] = List.from(groups.map((e) => {'id': e}));
+    FirebaseFirestore.instance.collection('users').doc(uid).set(data);
+  }
+
+  Future<void> removeUserFromGroup(String uid, String groupId) async {
+    Map<String, dynamic> data = await getGroupData(groupId);
+    List<Member> members =
+        List<Member>.from(data['participants'].map((e) => Member.fromJson(e)));
+    members.removeWhere((member) => member.id == uid);
+    data['participants'] = List.from(members.map((e) => e.toJson()));
+    FirebaseFirestore.instance.collection('groups').doc(groupId).set(data);
   }
 }

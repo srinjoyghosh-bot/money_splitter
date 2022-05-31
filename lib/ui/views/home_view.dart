@@ -86,8 +86,32 @@ class _HomeViewState extends State<HomeView> {
               return _model.state == ViewState.idle
                   ? _userGroups.isNotEmpty
                       ? ListView.builder(
-                          itemBuilder: (context, index) => GroupTile(
-                                group: _userGroups[index],
+                          itemBuilder: (context, index) => Dismissible(
+                                key: ValueKey<String>(_userGroups[index].id),
+                                child: GroupTile(
+                                  group: _userGroups[index],
+                                ),
+                                onDismissed: (direction) async {
+                                  showSuccessSnackbar(
+                                      'Left group ${_userGroups[index].name}',
+                                      context);
+                                  await _model.leaveGroup(_userGroups[index]);
+                                },
+                                background: Container(
+                                  color: Colors.green,
+                                  alignment: Alignment.centerRight,
+                                  child: const Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    child: Text(
+                                      'Leave',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                direction: DismissDirection.endToStart,
                               ),
                           itemCount: _userGroups.length)
                       : const Center(

@@ -2,11 +2,13 @@ import 'package:money_manager/core/locator.dart';
 import 'package:money_manager/core/models/group.dart';
 import 'package:money_manager/core/services/database_service.dart';
 import 'package:money_manager/core/services/group_service.dart';
+import 'package:money_manager/core/services/local_storage_service.dart';
 import 'package:money_manager/core/view_models/base_viewmodel.dart';
 
 class HomeViewModel extends BaseViewModel {
   final GroupService _groupService = locator<GroupService>();
   final DatabaseService _databaseService = locator<DatabaseService>();
+  final LocalStorageService _service = locator<LocalStorageService>();
   List<Group> _userGroups = [];
 
   Future<List<Group>> get groups async {
@@ -46,5 +48,12 @@ class HomeViewModel extends BaseViewModel {
 
   Future<Group> getGroup(String id) async {
     return await _groupService.getGroupFromId(id);
+  }
+
+  Future<void> leaveGroup(Group group) async {
+    await _groupService.removeGroupFromUser(_service.currentUserId, group.id);
+    await _groupService.removeUserFromGroup(_service.currentUserId, group.id);
+    _userGroups.remove(group);
+    notifyListeners();
   }
 }

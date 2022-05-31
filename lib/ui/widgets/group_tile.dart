@@ -4,7 +4,10 @@ import 'package:money_manager/ui/views/group_view.dart';
 import '../../core/models/group.dart';
 
 class GroupTile extends StatefulWidget {
-  const GroupTile({Key? key, required this.group}) : super(key: key);
+  const GroupTile({
+    Key? key,
+    required this.group,
+  }) : super(key: key);
 
   final Group group;
 
@@ -15,8 +18,13 @@ class GroupTile extends StatefulWidget {
 class _GroupTileState extends State<GroupTile> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+        color: Colors.green,
+      ))),
       child: ListTile(
         title: Hero(
           tag: 'grp-name${widget.group.id}',
@@ -39,13 +47,6 @@ class _GroupTileState extends State<GroupTile> {
             backgroundColor: Colors.greenAccent,
           ),
         ),
-        shape: const RoundedRectangleBorder(
-            side: BorderSide(
-              style: BorderStyle.solid,
-              color: Colors.grey,
-              width: 2,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(12))),
         onTap: () {
           Navigator.pushNamed(context, GroupView.id, arguments: widget.group);
         },
