@@ -140,8 +140,18 @@ class GroupService {
     Map<String, dynamic> data = await getGroupData(groupId);
     List<Member> members =
         List<Member>.from(data['participants'].map((e) => Member.fromJson(e)));
-    members.removeWhere((member) => member.id == uid);
-    data['participants'] = List.from(members.map((e) => e.toJson()));
-    FirebaseFirestore.instance.collection('groups').doc(groupId).set(data);
+    if (members.length != 1) {
+      members.removeWhere((member) => member.id == uid);
+      data['participants'] = List.from(members.map((e) => e.toJson()));
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupId)
+          .set(data);
+    } else {
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupId)
+          .delete();
+    }
   }
 }
