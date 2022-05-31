@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:money_manager/ui/auth_view.dart';
-import 'package:money_manager/ui/group_view.dart';
-import 'package:money_manager/ui/home_view.dart';
+import 'package:money_manager/ui/views/auth_view.dart';
+import 'package:money_manager/ui/views/group_view.dart';
+import 'package:money_manager/ui/views/home_view.dart';
 
 import 'models/group.dart';
 

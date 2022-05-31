@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
 import 'package:money_manager/core/view_models/home_viewmodel.dart';
-import 'package:money_manager/ui/auth_view.dart';
+import 'package:money_manager/ui/utils/snackbars.dart';
+import 'package:money_manager/ui/views/auth_view.dart';
 import 'package:money_manager/ui/widgets/group_tile.dart';
 import 'package:provider/provider.dart';
 
-import '../core/constants/enum/view_state.dart';
-import '../core/models/group.dart';
+import '../../core/constants/enum/view_state.dart';
+import '../../core/models/group.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -216,9 +217,9 @@ class _HomeViewState extends State<HomeView> {
                             bool isCreated = await _model
                                 .createGroup(controller.text.trim());
                             if (isCreated) {
-                              showSuccessSnackbar('Group created!');
+                              showSuccessSnackbar('Group created!', context);
                             } else {
-                              showErrorSnackbar(_model.errorMessage);
+                              showErrorSnackbar(_model.errorMessage, context);
                             }
                             Navigator.of(context).pop();
                           },
@@ -257,9 +258,9 @@ class _HomeViewState extends State<HomeView> {
                             bool isJoined =
                                 await _model.joinGroup(controller.text);
                             if (isJoined) {
-                              showSuccessSnackbar('Group joined!');
+                              showSuccessSnackbar('Group joined!', context);
                             } else {
-                              showErrorSnackbar('No group found');
+                              showErrorSnackbar('No group found', context);
                             }
                             Navigator.of(context).pop();
                           },
@@ -271,21 +272,5 @@ class _HomeViewState extends State<HomeView> {
             ),
           );
         });
-  }
-
-  void showErrorSnackbar(String error) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.red,
-    ));
-  }
-
-  void showSuccessSnackbar(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.green,
-    ));
   }
 }

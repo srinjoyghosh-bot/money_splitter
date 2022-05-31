@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:money_manager/ui/group_view.dart';
+import 'package:money_manager/ui/views/group_view.dart';
 
 import '../../core/models/group.dart';
 
@@ -18,7 +18,13 @@ class _GroupTileState extends State<GroupTile> {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
       child: ListTile(
-        title: Text(widget.group.name),
+        title: Hero(
+          tag: 'grp-name${widget.group.id}',
+          child: Text(
+            widget.group.name,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
         leading: Padding(
           padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
           child: CircleAvatar(

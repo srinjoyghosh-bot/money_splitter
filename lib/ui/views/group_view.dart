@@ -71,7 +71,16 @@ class _GroupViewState extends State<GroupView>
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(_group.name),
+            title: Hero(
+              tag: 'grp-name${_group.id}',
+              child: Text(
+                _group.name,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
             centerTitle: true,
             bottom: TabBar(
               controller: _controller,

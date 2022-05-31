@@ -5,8 +5,8 @@ import 'package:money_manager/core/router.dart';
 import 'package:money_manager/core/view_models/authentication_viewmodel.dart';
 import 'package:money_manager/core/view_models/group_viewmodel.dart';
 import 'package:money_manager/core/view_models/home_viewmodel.dart';
-import 'package:money_manager/ui/auth_view.dart';
-import 'package:money_manager/ui/home_view.dart';
+import 'package:money_manager/ui/views/auth_view.dart';
+import 'package:money_manager/ui/views/home_view.dart';
 import 'package:provider/provider.dart';
 
 import 'core/services/local_storage_service.dart';
